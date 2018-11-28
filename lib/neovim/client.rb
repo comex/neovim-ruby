@@ -97,6 +97,10 @@ module Neovim
       end
     end
 
+    def batch(&block)
+      @session.batch(&block)
+    end
+
     def shutdown
       @session.shutdown
     end

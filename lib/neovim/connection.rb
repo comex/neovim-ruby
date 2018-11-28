@@ -49,6 +49,10 @@ module Neovim
       end
     end
 
+    def flush
+      @packer.flush
+    end
+
     def register_type(id)
       @unpacker.register_type(id) do |data|
         index = MessagePack.unpack(data)

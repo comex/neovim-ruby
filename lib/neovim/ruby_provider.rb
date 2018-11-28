@@ -98,7 +98,9 @@ module Neovim
 
       __with_exception_handling(client) do
         __with_std_streams(client) do
-          yield
+          client.batch do
+            yield
+          end
         end
       end
       nil

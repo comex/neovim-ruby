@@ -68,6 +68,10 @@ module Neovim
       write(:notification, method, args, **kwargs)
     end
 
+    def flush
+      @connection.flush
+    end
+
     def run
       @running = true
 

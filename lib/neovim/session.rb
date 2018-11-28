@@ -25,6 +25,7 @@ module Neovim
       @response_handlers = Hash.new(-> {})
       @pending_messages = []
       @request_id = 0
+      @flush = true
     end
 
     def run(&block)
@@ -75,11 +76,11 @@ module Neovim
     end
 
     def respond(request_id, value, error=nil)
-      @event_loop.respond(request_id, value, error)
+      @event_loop.respond(request_id, value, error, flush: @flush)
     end
 
     def notify(method, *args)
-      @event_loop.notify(method, *args)
+      @event_loop.notify(method, *args, flush: @flush)
     end
 
     def shutdown
@@ -90,6 +91,14 @@ module Neovim
     def stop
       @running = false
       @event_loop.stop
+    end
+
+    def batch(&block)
+      @flush = false
+      block.call
+    ensure
+      @flush = true
+      @event_loop.flush
     end
 
     private

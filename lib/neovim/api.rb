@@ -73,6 +73,7 @@ module Neovim
 
       def initialize(attributes)
         @name = attributes.fetch("name")
+        @return_type = attributes.fetch("return_type")
       end
 
       def method_name
@@ -81,7 +82,12 @@ module Neovim
 
       # Apply this function to a running RPC session.
       def call(session, *args)
-        session.request(name, *args)
+        if @return_type == "void"
+          session.notify(name, *args)
+          nil
+        else
+          session.request(name, *args)
+        end
       end
     end
   end
