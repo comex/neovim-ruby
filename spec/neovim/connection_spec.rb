@@ -8,10 +8,14 @@ module Neovim
       it "writes msgpack to the underlying file descriptor" do
         rd, wr = IO.pipe
         connection = Connection.new(nil_io, wr)
-        connection.write("some data")
+
+        expect do
+          connection.write("some data")
+        end.to make_readable(rd)
+
         wr.close
 
-        expect(MessagePack.unpack(rd.read)).to eq("some data")
+        expect(rd).to have_packed_messages("some data", "some more data")
       end
 
       it "throws an exception when the file is closed" do

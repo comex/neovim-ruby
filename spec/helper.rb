@@ -16,6 +16,7 @@ RSpec.configure do |config|
     exp.syntax = :expect
   end
 
+  config.include Support::Matchers
   config.disable_monkey_patching!
   config.order = :random
   config.color = true
