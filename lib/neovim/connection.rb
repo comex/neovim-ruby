@@ -38,9 +38,9 @@ module Neovim
       @running = false
     end
 
-    def write(object)
+    def write(object, flush: true)
       log(:debug) { {object: object} }
-      @packer.write(object).flush
+      @packer.write(object).tap { |pck| pck.flush if flush }
     end
 
     def read

@@ -15,6 +15,20 @@ module Neovim
 
         wr.close
 
+        expect(rd).to have_packed_messages("some data")
+      end
+
+      it "buffers messages with flush: false" do
+        rd, wr = IO.pipe
+        connection = Connection.new(nil_io, wr)
+        connection.write("some data", flush: false)
+
+        expect do
+          connection.write("some more data")
+        end.to make_readable(rd)
+
+        wr.close
+
         expect(rd).to have_packed_messages("some data", "some more data")
       end
 

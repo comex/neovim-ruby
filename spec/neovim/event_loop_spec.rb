@@ -19,6 +19,19 @@ module Neovim
         message = server_rd.readpartial(1024)
         expect(message).to eq(MessagePack.pack([0, 1, "method", [1, 2]]))
       end
+
+      it "buffers a request" do
+        event_loop.request(1, :method, 1, 2, flush: false)
+
+        expect do
+          event_loop.request(2, :method, 3, 4)
+        end.to make_readable(server_rd)
+
+        expect(server_rd).to have_packed_messages(
+          [0, 1, "method", [1, 2]],
+          [0, 2, "method", [3, 4]],
+        )
+      end
     end
 
     describe "#respond" do
@@ -27,6 +40,19 @@ module Neovim
         message = server_rd.readpartial(1024)
         expect(message).to eq(MessagePack.pack([1, 2, "error", "value"]))
       end
+
+      it "buffers a response" do
+        event_loop.respond(2, "value", "error", flush: false)
+
+        expect do
+          event_loop.respond(3, "another value", "another error")
+        end.to make_readable(server_rd)
+
+        expect(server_rd).to have_packed_messages(
+          [1, 2, "error", "value"],
+          [1, 3, "another error", "another value"],
+        )
+      end
     end
 
     describe "#notify" do
@@ -34,6 +60,19 @@ module Neovim
         event_loop.notify(:method, 1, 2)
         message = server_rd.readpartial(1024)
         expect(message).to eq(MessagePack.pack([2, "method", [1, 2]]))
+      end
+
+      it "buffers a notification" do
+        event_loop.notify(:method, 1, 2, flush: false)
+
+        expect do
+          event_loop.notify(:method, 3, 4)
+        end.to make_readable(server_rd)
+
+        expect(server_rd).to have_packed_messages(
+          [2, "method", [1, 2]],
+          [2, "method", [3, 4]],
+        )
       end
     end
 

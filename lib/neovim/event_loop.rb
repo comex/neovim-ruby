@@ -39,7 +39,7 @@ module Neovim
       run
     end
 
-    def request(request_id, method, *args)
+    def request(request_id, method, *args, **kwargs)
       log(:debug) do
         {
           request_id: request_id,
@@ -48,10 +48,10 @@ module Neovim
         }
       end
 
-      write(:request, request_id, method, args)
+      write(:request, request_id, method, args, **kwargs)
     end
 
-    def respond(request_id, return_value, error)
+    def respond(request_id, return_value, error, **kwargs)
       log(:debug) do
         {
           request_id: request_id,
@@ -60,12 +60,12 @@ module Neovim
         }
       end
 
-      write(:response, request_id, error, return_value)
+      write(:response, request_id, error, return_value, **kwargs)
     end
 
-    def notify(method, *args)
+    def notify(method, *args, **kwargs)
       log(:debug) { {name: method, arguments: args} }
-      write(:notification, method, args)
+      write(:notification, method, args, **kwargs)
     end
 
     def run
@@ -107,9 +107,9 @@ module Neovim
       Message.from_array(array)
     end
 
-    def write(type, *args)
+    def write(type, *args, **kwargs)
       message = Message.public_send(type, *args)
-      @connection.write(message.to_a)
+      @connection.write(message.to_a, **kwargs)
     end
   end
 end
